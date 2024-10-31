@@ -22,11 +22,6 @@ export async function GET() {
 			status: "TIDAK HADIR",
 		}));
 
-		await prisma.user.updateMany({
-			where: { role: { contains: "EMPLOYEE" } },
-			data: { token: uuidv4() },
-		});
-
 		// Buat salinan pengguna
 		await prisma.absence.createMany({
 			data: dataToCreate,
@@ -35,7 +30,6 @@ export async function GET() {
 		return NextResponse.json({
 			status: 200,
 			message: "OK",
-			data: dataToCreate,
 		});
 	} catch (err) {
 		return NextResponse.json({ status: 500, message: err.message });

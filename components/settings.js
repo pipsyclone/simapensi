@@ -54,7 +54,7 @@ const Settings = () => {
 					<p className="text-center">
 						{session?.user?.name}
 						<br />
-						<i className="text-slate-400">{data?.sk_number}</i>
+						<i className="text-slate-400">{data?.userid}</i>
 					</p>
 					<small>{session?.user?.role}</small>
 					<button
