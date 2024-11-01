@@ -19,7 +19,6 @@ export async function GET() {
 		const dataToCreate = datas.map(({ userid }) => ({
 			// Hapus ID untuk menghindari konflik saat menyalin
 			userid: userid,
-			status: "TIDAK HADIR",
 		}));
 
 		// Buat salinan pengguna

@@ -20,12 +20,13 @@ export const options = {
 					placeholder: "Masukkan Password",
 				},
 			},
-			async authorize(credentials, req) {
+			async authorize(credentials, req, res) {
 				const { username, password } = credentials;
 				const user = await prisma.user.findUnique({
 					where: { username: username },
 				});
 
+				res.setHeader("Cache-Control", "s-maxage=60, stale-while-revalidate");
 				if (username === user.username && md5(password) === user.password) {
 					return user;
 				} else {
