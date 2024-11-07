@@ -22,10 +22,28 @@ export default async function middleware(req) {
 		) {
 			return NextResponse.redirect(new URL("/dashboard", req.url));
 		}
+
+		if (session.role === "ADMIN") {
+			if (
+				pathname.startsWith("/dashboard/absence") ||
+				pathname.startsWith("/dashboard/daily-report") ||
+				pathname.startsWith("/dashboard/poa")
+			) {
+				return NextResponse.redirect(new URL("/dashboard", req.url));
+			}
+		}
 	}
 }
 
 // Tentukan rute yang diproteksi
 export const config = {
-	matcher: ["/", "/auth", "/dashboard/:path*", "/dashboard/users/:path*"], // Pastikan middleware hanya aktif di rute tertentu
+	matcher: [
+		"/",
+		"/auth",
+		"/dashboard/:path*",
+		"/dashboard/absence/:path*",
+		"/dashboard/daily-report/:path*",
+		"/dashboard/poa/:path*",
+		"/dashboard/users/:path*",
+	], // Pastikan middleware hanya aktif di rute tertentu
 };

@@ -2,6 +2,7 @@ import "@/styles/globals.css";
 import "@fortawesome/fontawesome-free/css/all.min.css";
 import "primereact/resources/themes/lara-light-cyan/theme.css";
 import "primereact/resources/primereact.min.css";
+import AuthProvider from "@/context/AuthProviders";
 
 export const metadata = {
 	icons: {
@@ -13,8 +14,10 @@ export const metadata = {
 
 export default function MainLayout({ children }) {
 	return (
-		<html lang="en">
-			<body>{children}</body>
-		</html>
+		<AuthProvider>
+			<html lang="en">
+				<body>{children}</body>
+			</html>
+		</AuthProvider>
 	);
 }

@@ -37,45 +37,65 @@ export async function POST(request) {
 			waktuSekarang >= batasWaktuSoreMulai &&
 			waktuSekarang <= batasWaktuSoreSelesai;
 
-		const alreadyAbsences = await prisma.absence.findMany({
-			where: { userid },
+		// await prisma.user.update({
+		// 	where: { userid: userid },
+		// 	data: {
+		// 		token: uuidv4(),
+		// 	},
+		// });
+		const absenceExist = await prisma.absence.findFirst({
+			where: {
+				userid,
+				lastdate: {
+					gte: startDay,
+					lte: endDay,
+				},
+			},
 		});
 
-		if (isWaktuPagi) {
-			if (alreadyAbsences.length > 0) {
-				const alreadyAbsenceToday = await prisma.absence.findFirst({
-					where: {
-						userid,
-						date: {
-							gte: startDay,
-							lte: endDay,
-						},
-						amount: 1,
-					},
-				});
+		const alreadyAbsenceToday = await prisma.absence.findFirst({
+			where: {
+				userid,
+				lastdate: {
+					gte: startDay,
+					lte: endDay,
+				},
+				description: "Kehadiran Pagi dan Sore",
+			},
+		});
 
-				if (!alreadyAbsenceToday) {
-					return NextResponse.json({
-						status: 203,
-						message: "Maaf anda sudah melakukannya pagi hari ini!",
-					});
-				}
+		if (alreadyAbsenceToday) {
+			return NextResponse.json({
+				status: 203,
+				message: "Maaf anda sudah melakukannya hari ini!",
+			});
+		} else if (isWaktuPagi) {
+			const alreadyMorningAbsence = await prisma.absence.findFirst({
+				where: {
+					userid,
+					datemorning: {
+						gte: batasWaktuPagiMulai,
+						lte: batasWaktuPagiSelesai,
+					},
+				},
+			});
+
+			if (alreadyMorningAbsence) {
+				return NextResponse.json({
+					status: 203,
+					message: "Maaf anda sudah melakukannya pagi hari ini!",
+				});
 			}
 
 			await prisma.absence.update({
 				where: {
-					date: {
-						get: startDay,
-						lte: endDay,
-					},
+					absenceid: alreadyMorningAbsence.absenceid,
+					status: "TIDAK HADIR",
 				},
-				data: { status: "HADIR", description: "Kehadiran Pagi", amount: 1 },
-			});
-
-			await prisma.user.update({
-				where: { userid: userid },
 				data: {
-					token: uuidv4(),
+					datemorning: new Date(),
+					status: "HADIR",
+					description: "Kehadiran Pagi",
 				},
 			});
 
@@ -84,44 +104,49 @@ export async function POST(request) {
 				message: "Berhasil absen pada pagi hari ini!",
 			});
 		} else if (isWaktuSore) {
-			if (alreadyAbsences.length > 0) {
-				const alreadyAbsenceToday = await prisma.absence.findFirst({
-					where: {
-						userid,
-						date: {
-							gte: startDay,
-							lte: endDay,
-						},
-						amount: 2,
+			const alreadyAfternoonAbsence = await prisma.absence.findFirst({
+				where: {
+					userid,
+					dateafternoon: {
+						gte: batasWaktuSoreMulai,
+						lte: batasWaktuSoreSelesai,
 					},
-				});
+				},
+			});
 
-				if (!alreadyAbsenceToday) {
-					return NextResponse.json({
-						status: 203,
-						message: "Maaf anda sudah melakukannya sore hari ini!",
-					});
-				}
+			if (alreadyAfternoonAbsence) {
+				return NextResponse.json({
+					status: 203,
+					message: "Maaf anda sudah melakukannya sore hari ini!",
+				});
+			}
+
+			const notAbsenMorning = await prisma.absence.findFirst({
+				where: {
+					userid,
+					dateafternoon: {
+						gte: batasWaktuPagiMulai,
+						lte: batasWaktuSoreSelesai,
+					},
+					status: "HADIR",
+				},
+			});
+
+			if (!notAbsenMorning) {
+				return NextResponse.json({
+					status: 203,
+					message:
+						"Maaf anda tidak bisa absen, karena tidak absen pagi hari ini!",
+				});
 			}
 
 			await prisma.absence.update({
 				where: {
-					date: {
-						get: startDay,
-						lte: endDay,
-					},
+					absenceid: absenceExist.absenceid,
 				},
 				data: {
-					status: "HADIR",
+					dateafternoon: new Date(),
 					description: "Kehadiran Pagi dan Sore",
-					amount: 2,
-				},
-			});
-
-			await prisma.user.update({
-				where: { userid: userid },
-				data: {
-					token: uuidv4(),
 				},
 			});
 

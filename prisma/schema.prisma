@@ -29,34 +29,23 @@ model User {
   token         String   @unique @db.Text
   role          String   @default("EMPLOYEE")
 
-  PoA         PoA[]
   Absence     Absence[]
   DailyReport DailyReport[]
 
   @@map("users")
 }
 
-model PoA {
-  poaid       String   @id @default(uuid())
-  userid      String
-  file        String
-  date        DateTime @default(now())
-  status      String
-  description String   @db.Text
-
-  User User @relation(fields: [userid], references: [userid])
-
-  @@map("poa")
-}
-
 model Absence {
-  absenceid   Int      @id @default(autoincrement())
-  userid      String   @unique
-  date        DateTime @default(now())
-  status      String   @default("TIDAK HADIR")
-  description String   @default("-")
+  absenceid     Int      @id @default(autoincrement())
+  userid        String
+  datemorning   DateTime @default(now())
+  dateafternoon DateTime @default(now())
+  lastdate      DateTime @default(now())
+  status        String   @default("TIDAK HADIR")
+  file          String   @default("-") @db.Text
+  description   String   @default("-")
 
-  User User @relation(fields: [userid], references: [userid])
+  User User @relation(fields: [userid], references: [userid], onDelete: Cascade)
 
   @@map("absences")
 }
@@ -67,7 +56,7 @@ model DailyReport {
   date        DateTime @default(now())
   description String   @db.Text
 
-  User User @relation(fields: [userid], references: [userid])
+  User User @relation(fields: [userid], references: [userid], onDelete: Cascade)
 
   @@map("dailyreports")
 }

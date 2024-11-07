@@ -1,12 +1,32 @@
 "use client";
 import { Chart } from "primereact/chart";
 
-const ChartAbsences = ({ chartType, dataType = "month", dataAbsences }) => {
+const ChartAbsences = ({
+	headerText,
+	className = "",
+	chartType,
+	dataType = "month",
+	dataAbsences,
+}) => {
 	const groupedData = dataAbsences.reduce((result, item) => {
-		const date = new Date(item.date);
+		const date = new Date(item.lastdate);
 		const month = date.getMonth(); // Mendapatkan bulan (0-11)
 		const year = date.getFullYear();
-		const keyPerMonth = `${year}-${month + 1}`; // Membuat key format "2024-11"
+		const monthNames = [
+			"January",
+			"February",
+			"March",
+			"April",
+			"May",
+			"June",
+			"July",
+			"August",
+			"September",
+			"October",
+			"November",
+			"December",
+		];
+		const keyPerMonth = `${monthNames[month]}`; // Membuat key format "2024-11"
 		const keyPerYear = `${year}`; // Membuat key format "2024"
 
 		// Inisialisasi objek jika belum ada
@@ -62,7 +82,7 @@ const ChartAbsences = ({ chartType, dataType = "month", dataAbsences }) => {
 			},
 			title: {
 				display: true,
-				text: "Akumulasi Kehadiran Per Bulan",
+				text: headerText,
 			},
 		},
 	};
@@ -72,7 +92,7 @@ const ChartAbsences = ({ chartType, dataType = "month", dataAbsences }) => {
 			type={chartType}
 			data={chartData}
 			options={options}
-			className="w-full"
+			className={className}
 		/>
 	);
 };

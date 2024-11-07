@@ -16,9 +16,11 @@ const ViewUser = () => {
 	const params = useParams();
 	const { handleAlert, uniqid } = Scripts();
 	const [isLoading, setIsLoading] = useState(false);
+	const [menuData, setMenuData] = useState("pegawai");
 
 	const [data, setData] = useState([]);
 	const [dataAbsences, setDataAbsences] = useState([]);
+	const [dataDailyReport, setDataDailyReport] = useState([]);
 
 	const [userid] = useState(params.userid);
 	const [name, setName] = useState("");
@@ -65,9 +67,21 @@ const ViewUser = () => {
 			});
 	};
 
+	const getDailyReport = async (userid) => {
+		await axios
+			.get("/api/daily-report/get-report-by-userid?userid=" + userid)
+			.then((res) => {
+				setDataDailyReport(res.data.data);
+			})
+			.catch((err) => {
+				console.log(err.message);
+			});
+	};
+
 	useEffect(() => {
 		getUsers(params.userid);
 		getAbsences(params.userid);
+		getDailyReport(params.userid);
 	}, []);
 
 	const onHandleSubmit = async (e) => {
@@ -161,15 +175,15 @@ const ViewUser = () => {
 	// Conditional data Absences
 	const rowAbsences = (dataAbsences) => {
 		return {
-			"text-red-500": dataAbsences.status === "TIDAK HADIR",
-			"text-green-500": dataAbsences.status === "HADIR",
-			"text-orange-500": dataAbsences.status === "IZIN",
+			"bg-red-500 text-black": dataAbsences.status === "TIDAK HADIR",
+			"bg-green-500 text-black": dataAbsences.status === "HADIR",
+			"bg-orange-500 text-black": dataAbsences.status === "IZIN",
 		};
 	};
 
 	const formatDate = (dataAbsences) => {
 		// Convert the date field to ISO string
-		const parsing = new Date(dataAbsences.date);
+		const parsing = new Date(dataAbsences.datemorning);
 
 		const year = parsing.getFullYear();
 		const month = String(parsing.getMonth() + 1).padStart(2, "0"); // Months are 0-indexed
@@ -179,29 +193,32 @@ const ViewUser = () => {
 		return formattedDateDDMMYYYY;
 	};
 
-	return (
-		<>
-			{new Date(dataAbsences.date) === new Date() &&
-			dataAbsences.status === "TIDAK HADIR" ? (
-				<div className="mb-5 p-5 rounded-lg border border-red-500 bg-red-200 text-red-700 text-sm">
-					<b>ALERT!</b> Pengguna Ini Belum Absen Hari Ini!
-				</div>
-			) : new Date(dataAbsences.date) === new Date() &&
-			  dataAbsences.status === "HADIR" ? (
-				<div className="mb-5 p-5 rounded-lg border border-green-500 bg-green-200 text-green-700 text-sm">
-					<b>ALERT!</b> Pengguna Ini Sudah Absen Hari Ini!
-				</div>
-			) : new Date(dataAbsences.date) === new Date() &&
-			  dataAbsences.status === "IZIN" ? (
-				<div className="mb-5 p-5 rounded-lg border border-orange-500 bg-orange-200 text-orange-700 text-sm">
-					<b>ALERT!</b> Pengguna Ini Izin Absen Hari Ini!
-				</div>
-			) : (
-				<div className="mb-5 p-5 rounded-lg border border-slate-500 bg-slate-200 text-slate-700 text-sm">
-					<b>ALERT!</b> Saat ini data kehadiran masih belum diperbarui, data
-					otomatis diperbarui pada jam 05:00 WIB!
-				</div>
-			)}
+	const formatTimeMorning = (dataAbsences) => {
+		// Convert the date field to ISO string
+		const parsing = new Date(dataAbsences.datemorning);
+
+		const hours = String(parsing.getHours()).padStart(2, "0");
+		const minutes = String(parsing.getMinutes()).padStart(2, "0");
+		const seconds = String(parsing.getSeconds()).padStart(2, "0");
+
+		const formatedTime = `${hours}:${minutes}:${seconds}`;
+		return formatedTime;
+	};
+
+	const formatTimeAfternoon = (dataAbsences) => {
+		// Convert the date field to ISO string
+		const parsing = new Date(dataAbsences.dateafternoon);
+
+		const hours = String(parsing.getHours()).padStart(2, "0");
+		const minutes = String(parsing.getMinutes()).padStart(2, "0");
+		const seconds = String(parsing.getSeconds()).padStart(2, "0");
+
+		const formatedTime = `${hours}:${minutes}:${seconds}`;
+		return formatedTime;
+	};
+
+	const InfoUser = () => {
+		return (
 			<Card>
 				<div className="flex flex-col sm:flex-row gap-5">
 					<div className="w-100 sm:w-[200px] text-center justify-center items-center">
@@ -413,43 +430,255 @@ const ViewUser = () => {
 					</div>
 				</div>
 			</Card>
-			<Card className="flex gap-5 mt-5">
-				<ChartAbsences
-					chartType={"line"}
-					dataType="month"
-					dataAbsences={dataAbsences}
-				/>
-				{/* <ChartAbsences
-					chartType={"pie"}
-					dataType="year"
-					dataAbsences={dataAbsences}
-				/> */}
-			</Card>
-			<Card className="mt-5">
-				<div className="text-2xl font-bold mb-3">Data Kehadiran</div>
-				<DataTable
-					value={dataAbsences}
-					paginator
-					rows={5}
-					rowsPerPageOptions={[5, 10, 25, 50]}
-					showGridlines
-					tableStyle={{
-						minWidth: "50rem",
-						fontSize: "9pt",
-					}}
-					className="custom-table"
-					rowClassName={rowAbsences}
+		);
+	};
+
+	const Absences = () => {
+		const date = new Date();
+		const month = date.getMonth(); // Mendapatkan bulan (0-11)
+		const monthNames = [
+			"January",
+			"February",
+			"March",
+			"April",
+			"May",
+			"June",
+			"July",
+			"August",
+			"September",
+			"October",
+			"November",
+			"December",
+		];
+		const year = date.getFullYear();
+
+		return (
+			<>
+				<Card className="flex gap-5 mt-5">
+					<ChartAbsences
+						chartType={"bar"}
+						dataType="month"
+						dataAbsences={dataAbsences}
+						className="grow"
+						headerText={
+							"Akumulasi Data Kehadiran Per Bulan - " +
+							monthNames[month] +
+							" " +
+							new Date().getFullYear()
+						}
+					/>
+					<ChartAbsences
+						chartType={"pie"}
+						dataType="year"
+						dataAbsences={dataAbsences}
+						className="grow h-[340px]"
+						headerText={
+							"Akumulasi Data Kehadiran Per Tahun - " + new Date().getFullYear()
+						}
+					/>
+				</Card>
+				<Card className="mt-5">
+					<div className="text-2xl font-bold mb-3">Data Kehadiran</div>
+					<DataTable
+						value={dataAbsences}
+						paginator
+						rows={5}
+						rowsPerPageOptions={[5, 10, 25, 50]}
+						showGridlines
+						tableStyle={{
+							minWidth: "50rem",
+							fontSize: "9pt",
+						}}
+						className="custom-table"
+						rowClassName={rowAbsences}
+					>
+						<Column
+							body={(_, { rowIndex }) => rowIndex + 1}
+							header="No."
+						></Column>
+						<Column body={formatDate} header="Tanggal (dd/mm/yyyy)"></Column>
+						<Column body={formatTimeMorning} header="Jam Absen Pagi"></Column>
+						<Column body={formatTimeAfternoon} header="Jam Absen Sore"></Column>
+						<Column field="status" header="Status Kehadiran"></Column>
+						<Column field="description" header="Keterangan"></Column>
+					</DataTable>
+				</Card>
+			</>
+		);
+	};
+
+	const DailyReport = () => {
+		return (
+			<>
+				<Card>
+					{dataDailyReport.map((data, key) => {
+						if (
+							new Date(data.date).toDateString() === new Date().toDateString()
+						) {
+							return (
+								<>
+									Waktu Penginputan : {new Date(data.date).toDateString()}
+									<br />
+									Laporan Hari Ini :
+									<br />
+									{data.description}
+								</>
+							);
+						}
+					})}
+				</Card>
+				<Card className="mt-5">
+					<div className="text-2xl font-bold mb-3">Data Laporan Harian</div>
+					{/* <DataTable
+						value={[]}
+						paginator
+						rows={5}
+						rowsPerPageOptions={[5, 10, 25, 50]}
+						showGridlines
+						tableStyle={{
+							minWidth: "50rem",
+							fontSize: "9pt",
+						}}
+						className="custom-table"
+						rowClassName={false}
+					>
+						<Column
+							body={(_, { rowIndex }) => rowIndex + 1}
+							header="No."
+						></Column>
+						<Column body={formatDate} header="Tanggal (dd/mm/yyyy)"></Column>
+						<Column body={formatTimeMorning} header="Jam Absen Pagi"></Column>
+						<Column body={formatTimeAfternoon} header="Jam Absen Sore"></Column>
+						<Column field="status" header="Status Kehadiran"></Column>
+						<Column field="description" header="Keterangan"></Column>
+					</DataTable> */}
+				</Card>
+			</>
+		);
+	};
+
+	return (
+		<>
+			{dataAbsences.map((data, key) => {
+				if (
+					new Date(data.lastdate).toDateString() ===
+						new Date().toDateString() &&
+					data.status === "TIDAK HADIR"
+				) {
+					return (
+						<div
+							className="mb-5 p-5 rounded-lg border border-red-500 bg-red-200 text-red-700 text-sm"
+							key={key}
+						>
+							<b>ALERT!</b> Pegawai Ini Belum Absen Hari Ini!
+							<br />
+							Keterangan : Tanpa Keterangan!
+						</div>
+					);
+				} else if (
+					new Date(data.lastdate).toDateString() ===
+						new Date().toDateString() &&
+					data.status === "HADIR"
+				) {
+					return (
+						<div
+							className="mb-5 p-5 rounded-lg border border-green-500 bg-green-200 text-green-700 text-sm"
+							key={key}
+						>
+							<b>ALERT!</b> Pegawai Ini Sudah Absen Hari Ini!
+							<br />
+							{data.description === "Kehadiran Pagi" ? (
+								<span>
+									<i className="fa-solid fa-check me-3"></i>
+									Pagi
+									<br />
+									<i className="fa-solid fa-times me-3"></i>
+									Sore
+								</span>
+							) : data.description === "Kehadiran Pagi dan Sore" ? (
+								<span>
+									<i className="fa-solid fa-check me-3"></i>
+									Pagi
+									<br />
+									<i className="fa-solid fa-check me-3"></i>
+									Sore
+								</span>
+							) : (
+								""
+							)}
+						</div>
+					);
+				} else if (
+					new Date(data.lastdate).toDateString() ===
+						new Date().toDateString() &&
+					data.status === "IZIN"
+				) {
+					return (
+						<div
+							className="mb-5 p-5 rounded-lg border border-orange-500 bg-orange-200 text-orange-700 text-sm"
+							key={key}
+						>
+							<b>ALERT!</b> Pegawai Ini Izin Absen Hari Ini!
+							<br />
+							{data.description}
+						</div>
+					);
+				} else {
+					return (
+						<div
+							className="mb-5 p-5 rounded-lg border border-slate-500 bg-slate-200 text-slate-700 text-sm"
+							key={key}
+						>
+							<b>ALERT!</b> Saat ini data kehadiran masih belum diperbarui, data
+							otomatis diperbarui pada jam 05:00 WIB!
+						</div>
+					);
+				}
+			})}
+
+			<div className="flex gap-3 w-full mb-5">
+				<button
+					type="button"
+					onClick={() => setMenuData("pegawai")}
+					className={
+						menuData === "pegawai"
+							? "bg-indigo-500 rounded-lg border border-indigo-500 p-2 text-white basis-1/2"
+							: "bg-white rounded-lg border border-indigo-500 p-2 text-indigo-500 basis-1/2"
+					}
 				>
-					<Column
-						body={(_, { rowIndex }) => rowIndex + 1}
-						header="No."
-					></Column>
-					<Column body={formatDate} header="Tanggal (dd/mm/yyyy)"></Column>
-					<Column field="status" header="Status Kehadiran"></Column>
-					<Column field="description" header="Keterangan"></Column>
-					{/* <Column body={actionButton} header="Aksi"></Column> */}
-				</DataTable>
-			</Card>
+					Info Pegawai
+				</button>
+				<button
+					type="button"
+					onClick={() => setMenuData("absen")}
+					className={
+						menuData === "absen"
+							? "bg-indigo-500 rounded-lg border border-indigo-500 p-2 text-white basis-1/2"
+							: "bg-white rounded-lg border border-indigo-500 p-2 text-indigo-500 basis-1/2"
+					}
+				>
+					Data Kehadiran
+				</button>
+				<button
+					type="button"
+					onClick={() => setMenuData("laporan")}
+					className={
+						menuData === "laporan"
+							? "bg-indigo-500 rounded-lg border border-indigo-500 p-2 text-white basis-1/2"
+							: "bg-white rounded-lg border border-indigo-500 p-2 text-indigo-500 basis-1/2"
+					}
+				>
+					Data Laporan Harian
+				</button>
+			</div>
+
+			{menuData === "pegawai"
+				? InfoUser()
+				: menuData === "absen"
+				? Absences()
+				: menuData === "laporan"
+				? DailyReport()
+				: ""}
 		</>
 	);
 };

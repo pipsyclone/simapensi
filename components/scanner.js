@@ -68,10 +68,9 @@ const QRScanner = () => {
 								await axios
 									.post("/api/absence/validating-qr-code", {
 										userid: res.data.data.userid,
-										time: new Date(),
 									})
-									.then((res) => {
-										if (res.data.status === 200) {
+									.then((result) => {
+										if (result.data.status === 200) {
 											handleAlert(
 												"success",
 												"Berhasil!",
@@ -80,22 +79,22 @@ const QRScanner = () => {
 													"!",
 												false
 											);
-										} else if (res.data.status === 203) {
+										} else if (result.data.status === 203) {
 											handleAlert(
 												"warning",
 												"Absensi Sudah Dilakukan!",
-												res.data.message,
+												result.data.message,
 												false
 											);
 										} else {
 											handleAlert(
 												"error",
 												"Absensi Gagal!",
-												res.data.message,
+												result.data.message,
 												false
 											);
 										}
-										// console.log(res.data);
+										// console.log(result.data);
 									});
 							} else {
 								scanner?.current?.start();

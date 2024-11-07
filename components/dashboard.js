@@ -56,33 +56,7 @@ const Dashboard = (props) => {
 						</div>
 						Beranda
 					</a>
-					<a
-						href="#"
-						className="flex text-indigo-500 border-0 hover:bg-indigo-500 hover:text-white rounded-lg p-2 duration-500 ease-in-out"
-					>
-						<div className="w-12 text-center">
-							<i className="fa-solid fa-user-check"></i>
-						</div>
-						Absensi
-					</a>
-					<a
-						href="#"
-						className="flex text-indigo-500 border-0 hover:bg-indigo-500 hover:text-white rounded-lg p-2 duration-500 ease-in-out"
-					>
-						<div className="w-12 text-center">
-							<i className="fa-solid fa-book"></i>
-						</div>
-						Laporan Harian
-					</a>
-					<a
-						href="#"
-						className="flex text-indigo-500 border-0  hover:bg-indigo-500 hover:text-white rounded-lg p-2 duration-500 ease-in-out"
-					>
-						<div className="w-12 text-center">
-							<i className="fa-solid fa-briefcase"></i>
-						</div>
-						Bukti Izin Kehadiran
-					</a>
+
 					{session?.user?.role === "ADMIN" ? (
 						<>
 							<a
@@ -105,7 +79,26 @@ const Dashboard = (props) => {
 							</a>
 						</>
 					) : (
-						""
+						<>
+							<a
+								href="/dashboard/daily-report"
+								className="flex text-indigo-500 border-0 hover:bg-indigo-500 hover:text-white rounded-lg p-2 duration-500 ease-in-out"
+							>
+								<div className="w-12 text-center">
+									<i className="fa-solid fa-book"></i>
+								</div>
+								Laporan Harian
+							</a>
+							<a
+								href="/dashboard/poa"
+								className="flex text-indigo-500 border-0  hover:bg-indigo-500 hover:text-white rounded-lg p-2 duration-500 ease-in-out"
+							>
+								<div className="w-12 text-center">
+									<i className="fa-solid fa-briefcase"></i>
+								</div>
+								Bukti Izin Kehadiran
+							</a>
+						</>
 					)}
 				</div>
 			</div>
@@ -130,7 +123,7 @@ const Dashboard = (props) => {
 					</button>
 
 					<div className="flex gap-8 items-center">
-						<div className="relative inline-block text-left">
+						{/* <div className="relative inline-block text-left">
 							<button type="button" onClick={() => setNotif(!notif)}>
 								<span className="absolute ms-2 flex h-3 w-3">
 									<span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
@@ -148,7 +141,7 @@ const Dashboard = (props) => {
 							>
 								Hello World
 							</div>
-						</div>
+						</div> */}
 
 						<a
 							href="/dashboard/settings"
