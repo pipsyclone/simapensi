@@ -1,20 +1,16 @@
 import prisma from "@/libs/prisma";
 import { NextResponse } from "next/server";
-import { v4 as uuidv4 } from "uuid";
 
-export async function GET() {
+export async function POST() {
 	try {
 		const datas = await prisma.user.findMany({
-			where: {
-				role: {
-					not: "ADMIN", // Mengecualikan pengguna dengan role "admin"
-				},
-			},
+			where: { role: { contains: "EMPLOYEE" } },
 			select: {
 				userid: true, // Ambil userid
 				// Tambahkan kolom lain yang perlu diambil di sini
 			},
 		});
+
 		// Siapkan data untuk disalin
 		const dataToCreate = datas.map(({ userid }) => ({
 			// Hapus ID untuk menghindari konflik saat menyalin

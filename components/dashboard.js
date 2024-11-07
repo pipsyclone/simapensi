@@ -79,7 +79,7 @@ const Dashboard = (props) => {
 						className="flex text-indigo-500 border-0  hover:bg-indigo-500 hover:text-white rounded-lg p-2 duration-500 ease-in-out"
 					>
 						<div className="w-12 text-center">
-							<i class="fa-solid fa-briefcase"></i>
+							<i className="fa-solid fa-briefcase"></i>
 						</div>
 						Bukti Izin Kehadiran
 					</a>

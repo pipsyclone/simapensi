@@ -26,7 +26,6 @@ export const options = {
 					where: { username: username },
 				});
 
-				res.setHeader("Cache-Control", "s-maxage=60, stale-while-revalidate");
 				if (username === user.username && md5(password) === user.password) {
 					return user;
 				} else {

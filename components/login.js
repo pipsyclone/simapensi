@@ -40,6 +40,7 @@ const Login = () => {
 					<Image
 						src={LogoMJLK}
 						alt="Logo Majalengka"
+						quality={100}
 						width={0}
 						height={0}
 						style={{ width: "50px", height: "auto", alignSelf: "center" }}

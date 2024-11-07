@@ -6,13 +6,21 @@ import { useParams } from "next/navigation";
 import { useState, useEffect } from "react";
 import axios from "axios";
 import Scripts from "@/assets/scripts";
+import { DataTable } from "primereact/datatable";
+import { Column } from "primereact/column";
+import emailjs from "@emailjs/browser";
+import Swal from "sweetalert2";
+import ChartAbsences from "./charts/chart-absences";
 
 const ViewUser = () => {
 	const params = useParams();
-	const { uniqid } = Scripts();
+	const { handleAlert, uniqid } = Scripts();
 	const [isLoading, setIsLoading] = useState(false);
 
 	const [data, setData] = useState([]);
+	const [dataAbsences, setDataAbsences] = useState([]);
+
+	const [userid] = useState(params.userid);
 	const [name, setName] = useState("");
 	const [skNumber, setSkNumber] = useState(data.sk_number);
 	const [noTelp, setNoTelp] = useState("");
@@ -46,8 +54,20 @@ const ViewUser = () => {
 			});
 	};
 
+	const getAbsences = async (userid) => {
+		await axios
+			.get("/api/absence/get-absences-by-userid?userid=" + userid)
+			.then((res) => {
+				setDataAbsences(res.data.data);
+			})
+			.catch((err) => {
+				console.log(err.message);
+			});
+	};
+
 	useEffect(() => {
 		getUsers(params.userid);
+		getAbsences(params.userid);
 	}, []);
 
 	const onHandleSubmit = async (e) => {
@@ -73,71 +93,115 @@ const ViewUser = () => {
 			);
 			setIsLoading(false);
 		} else {
-			// await axios
-			// 	.post("/api/users/register", {
-			// 		name,
-			// 		email,
-			// 		skNumber,
-			// 		noTelp,
-			// 		bornPlace,
-			// 		dateOfBirth,
-			// 		mainTasks,
-			// 		education,
-			// 		address,
-			// 		role,
-			// 		username,
-			// 		password,
-			// 	})
-			// 	.then((res) => {
-			// 		console.log(res.data);
-			// 		if (res.data.status === 200) {
-			// 			emailjs
-			// 				.sendForm(
-			// 					"service_eb05ud9",
-			// 					"template_quvavj6",
-			// 					"#myForm",
-			// 					"HahQxeSBq9hkgMF4z"
-			// 				)
-			// 				.then(
-			// 					(response) => {
-			// 						Swal.fire({
-			// 							icon: "success",
-			// 							title: "Success!",
-			// 							text: res.data.message,
-			// 							allowOutsideClick: false,
-			// 						}).then((okay) => {
-			// 							if (okay) {
-			// 								window.location.reload();
-			// 							}
-			// 						});
-			// 					},
-			// 					(error) => {
-			// 						Swal.fire({
-			// 							icon: "error",
-			// 							title: "Error!",
-			// 							text: error,
-			// 							allowOutsideClick: false,
-			// 						}).then((okay) => {
-			// 							if (okay) {
-			// 								window.location.reload();
-			// 							}
-			// 						});
-			// 					}
-			// 				);
-			// 		} else {
-			// 			handleAlert("error", "Error!", res.data.message, false);
-			// 		}
-			// 		setIsLoading(false);
-			// 	})
-			// 	.catch((err) => {
-			// 		console.log(err.message);
-			// 		setIsLoading(false);
-			// 	});
+			await axios
+				.put("/api/users/update-user", {
+					userid,
+					name,
+					email,
+					skNumber,
+					noTelp,
+					bornPlace,
+					dateOfBirth,
+					mainTasks,
+					education,
+					address,
+					role,
+					username,
+					password,
+				})
+				.then((res) => {
+					console.log(res.data);
+					if (res.data.status === 200) {
+						emailjs
+							.sendForm(
+								"service_eb05ud9",
+								"template_quvavj6",
+								"#myForm",
+								"HahQxeSBq9hkgMF4z"
+							)
+							.then(
+								(response) => {
+									Swal.fire({
+										icon: "success",
+										title: "Success!",
+										text: res.data.message,
+										allowOutsideClick: false,
+									}).then((okay) => {
+										if (okay) {
+											window.location.reload();
+										}
+									});
+								},
+								(error) => {
+									Swal.fire({
+										icon: "error",
+										title: "Error!",
+										text: error,
+										allowOutsideClick: false,
+									}).then((okay) => {
+										if (okay) {
+											window.location.reload();
+										}
+									});
+								}
+							);
+					} else {
+						handleAlert("error", "Error!", res.data.message, false);
+					}
+					setIsLoading(false);
+				})
+				.catch((err) => {
+					console.log(err.message);
+					setIsLoading(false);
+				});
 		}
+	};
+
+	// Option For Absences Data
+	// Conditional data Absences
+	const rowAbsences = (dataAbsences) => {
+		return {
+			"text-red-500": dataAbsences.status === "TIDAK HADIR",
+			"text-green-500": dataAbsences.status === "HADIR",
+			"text-orange-500": dataAbsences.status === "IZIN",
+		};
+	};
+
+	const formatDate = (dataAbsences) => {
+		// Convert the date field to ISO string
+		const parsing = new Date(dataAbsences.date);
+
+		const year = parsing.getFullYear();
+		const month = String(parsing.getMonth() + 1).padStart(2, "0"); // Months are 0-indexed
+		const day = String(parsing.getDate()).padStart(2, "0");
+
+		const formattedDateDDMMYYYY = `${day}/${month}/${year}`;
+		return formattedDateDDMMYYYY;
 	};
 
 	return (
 		<>
+			{new Date(dataAbsences.date) === new Date() &&
+			dataAbsences.status === "TIDAK HADIR" ? (
+				<div className="mb-5 p-5 rounded-lg border border-red-500 bg-red-200 text-red-700 text-sm">
+					<b>ALERT!</b> Pengguna Ini Belum Absen Hari Ini!
+				</div>
+			) : new Date(dataAbsences.date) === new Date() &&
+			  dataAbsences.status === "HADIR" ? (
+				<div className="mb-5 p-5 rounded-lg border border-green-500 bg-green-200 text-green-700 text-sm">
+					<b>ALERT!</b> Pengguna Ini Sudah Absen Hari Ini!
+				</div>
+			) : new Date(dataAbsences.date) === new Date() &&
+			  dataAbsences.status === "IZIN" ? (
+				<div className="mb-5 p-5 rounded-lg border border-orange-500 bg-orange-200 text-orange-700 text-sm">
+					<b>ALERT!</b> Pengguna Ini Izin Absen Hari Ini!
+				</div>
+			) : (
+				<div className="mb-5 p-5 rounded-lg border border-slate-500 bg-slate-200 text-slate-700 text-sm">
+					<b>ALERT!</b> Saat ini data kehadiran masih belum diperbarui, data
+					otomatis diperbarui pada jam 05:00 WIB!
+				</div>
+			)}
 			<Card>
 				<div className="flex flex-col sm:flex-row gap-5">
 					<div className="w-100 sm:w-[200px] text-center justify-center items-center">
@@ -343,11 +407,48 @@ const ViewUser = () => {
 								className="bg-indigo-500 p-3 text-white ms-auto rounded-lg hover:bg-indigo-400 duration-500 ease-in-out"
 								disabled={isLoading}
 							>
-								{isLoading ? "Loading..." : "Simpan"}
+								{isLoading ? "Loading..." : "Perbarui"}
 							</button>
 						</form>
 					</div>
 				</div>
+			</Card>
+			<Card className="flex gap-5 mt-5">
+				<ChartAbsences
+					chartType={"line"}
+					dataType="month"
+					dataAbsences={dataAbsences}
+				/>
+				{/* <ChartAbsences
+					chartType={"pie"}
+					dataType="year"
+					dataAbsences={dataAbsences}
+				/> */}
+			</Card>
+			<Card className="mt-5">
+				<div className="text-2xl font-bold mb-3">Data Kehadiran</div>
+				<DataTable
+					value={dataAbsences}
+					paginator
+					rows={5}
+					rowsPerPageOptions={[5, 10, 25, 50]}
+					showGridlines
+					tableStyle={{
+						minWidth: "50rem",
+						fontSize: "9pt",
+					}}
+					className="custom-table"
+					rowClassName={rowAbsences}
+				>
+					<Column
+						body={(_, { rowIndex }) => rowIndex + 1}
+						header="No."
+					></Column>
+					<Column body={formatDate} header="Tanggal (dd/mm/yyyy)"></Column>
+					<Column field="status" header="Status Kehadiran"></Column>
+					<Column field="description" header="Keterangan"></Column>
+					{/* <Column body={actionButton} header="Aksi"></Column> */}
+				</DataTable>
 			</Card>
 		</>
 	);

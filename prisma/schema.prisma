@@ -51,7 +51,7 @@ model PoA {
 
 model Absence {
   absenceid   Int      @id @default(autoincrement())
-  userid      String
+  userid      String   @unique
   date        DateTime @default(now())
   status      String   @default("TIDAK HADIR")
   description String   @default("-")

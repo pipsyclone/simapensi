@@ -2,7 +2,7 @@ import prisma from "@/libs/prisma";
 import { NextResponse } from "next/server";
 import { v4 as uuidv4 } from "uuid";
 
-export async function GET() {
+export async function POST() {
 	try {
 		await prisma.user.updateMany({
 			where: { role: { contains: "EMPLOYEE" } },

@@ -1,6 +1,4 @@
 "use client";
-import "primereact/resources/themes/lara-light-cyan/theme.css";
-import "primereact/resources/primereact.min.css";
 import { useState, useMemo, useEffect } from "react";
 import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
