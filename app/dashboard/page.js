@@ -7,6 +7,7 @@ import { useSession } from "next-auth/react";
 
 export default function Dashboard() {
 	const { data: session } = useSession();
+
 	const [dataUsers, setDataUsers] = useState([]);
 	const getUsers = async () => {
 		await axios.get("/api/users/get-users").then((res) => {

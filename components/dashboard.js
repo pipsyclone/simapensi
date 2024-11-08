@@ -1,14 +1,17 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import UserImage from "@/assets/images/user.png";
 import LogoMJLK from "@/assets/images/logo_mjlk.png";
 import { useSession } from "next-auth/react";
+import Loading from "./loading";
 
 const Dashboard = (props) => {
-	const { data: session } = useSession();
+	const { data: session, status } = useSession();
 	const [sidebar, setSidebar] = useState(false);
-	const [notif, setNotif] = useState(false);
+
+	if (status === "loading") return <Loading />;
+
 	return (
 		<div className="relative w-full h-screen flex">
 			<div

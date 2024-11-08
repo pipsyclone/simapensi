@@ -87,8 +87,8 @@ const Users = () => {
 				value={filteredItems}
 				header={subHeaderComponentMemo}
 				paginator
-				rows={5}
-				rowsPerPageOptions={[5, 10, 25, 50]}
+				rows={10}
+				rowsPerPageOptions={[10, 25, 50]}
 				showGridlines
 				tableStyle={{
 					minWidth: "50rem",

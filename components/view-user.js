@@ -650,11 +650,14 @@ const ViewUser = () => {
 							header="No."
 						></Column>
 						<Column body={formatDate} header="Tanggal (dd/mm/yyyy)"></Column>
-						<Column body={formatTime} header="Jam Absen Pagi"></Column>
+						<Column
+							body={formatTime}
+							header="Waktu Pengiriman Laporan"
+						></Column>
 						<Column
 							field="description"
 							header="Keterangan"
-							className="w-[700px]"
+							className="w-[800px]"
 						></Column>
 					</DataTable>
 				</Card>
@@ -664,7 +667,7 @@ const ViewUser = () => {
 
 	return (
 		<>
-			{!dataAbsences ? (
+			{dataAbsences ? (
 				dataAbsences.map((data, key) => {
 					if (
 						new Date(data.lastdate).toDateString() ===
