@@ -131,7 +131,23 @@ const Register = () => {
 		reader.readAsBinaryString(file);
 	};
 
-	console.log(dataExcel);
+	const handleSubmitWithFile = async (e) => {
+		e.preventDefault();
+		await axios
+			.post("/api/users/register-with-file", {
+				data: dataExcel,
+			})
+			.then((res) => {
+				console.log(res.data);
+			})
+			.catch((err) => {
+				console.log(err.message);
+			});
+	};
+
+	useEffect(() => {
+		console.log(dataExcel);
+	}, [dataExcel]);
 
 	return (
 		<div className="mx-auto">
@@ -345,12 +361,16 @@ const Register = () => {
 						</button>
 					</form>
 				) : (
-					<form className="flex flex-col gap-3 w-auto mt-5">
+					<form
+						onSubmit={handleSubmitWithFile}
+						className="flex flex-col gap-3 w-auto mt-5"
+					>
 						<label>Masukkan file excel : </label>
 						<input
 							type="file"
 							className="p-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 ring-inset"
 							accept=".xlsx, .xls"
+							onChange={handleFileUpload}
 						/>
 
 						<button

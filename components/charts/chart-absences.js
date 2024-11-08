@@ -12,43 +12,30 @@ const ChartAbsences = ({
 		const date = new Date(item.lastdate);
 		const month = date.getMonth(); // Mendapatkan bulan (0-11)
 		const year = date.getFullYear();
-		const monthNames = [
-			"January",
-			"February",
-			"March",
-			"April",
-			"May",
-			"June",
-			"July",
-			"August",
-			"September",
-			"October",
-			"November",
-			"December",
-		];
-		const keyPerMonth = `${monthNames[month]}`; // Membuat key format "2024-11"
+		const keyPerMonth = `${year}-${month + 1}`; // Membuat key format "2024-11"
 		const keyPerYear = `${year}`; // Membuat key format "2024"
 
 		// Inisialisasi objek jika belum ada
 		if (dataType === "month") {
-			result[keyPerMonth] = { HADIR: 0, "TIDAK HADIR": 0, IZIN: 0 };
+			if (!result[keyPerMonth])
+				result[keyPerMonth] = { HADIR: 0, "TIDAK HADIR": 0, IZIN: 0 };
+			result[keyPerMonth][item.status]++;
 		} else {
-			result[keyPerYear] = { HADIR: 0, "TIDAK HADIR": 0, IZIN: 0 };
+			if (!result[keyPerYear])
+				result[keyPerYear] = { HADIR: 0, "TIDAK HADIR": 0, IZIN: 0 };
+			result[keyPerYear][item.status]++;
 		}
 
-		// Increment jumlah status berdasarkan bulan
-		if (dataType === "month") result[keyPerMonth][item.status]++;
-		else result[keyPerYear][item.status]++;
 		return result;
 	}, {});
 
 	const generateChartData = (groupedData) => {
 		const labels = Object.keys(groupedData); // Bulan (misalnya, "2024-11", "2024-12")
-		const hadirData = labels.map((label) => groupedData[label].HADIR);
+		const hadirData = labels.map((label) => groupedData[label]["HADIR"]);
 		const tidakHadirData = labels.map(
 			(label) => groupedData[label]["TIDAK HADIR"]
 		);
-		const izinData = labels.map((label) => groupedData[label].IZIN);
+		const izinData = labels.map((label) => groupedData[label]["IZIN"]);
 
 		return {
 			labels,
