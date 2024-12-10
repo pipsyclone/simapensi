@@ -1,0 +1,62 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  userid        String   @id @default(uuid())
+  username      String   @unique
+  email         String   @unique
+  password      String
+  sk_number     String   @unique
+  no_telp       String   @unique
+  name          String
+  place         String
+  date_of_birth DateTime
+  main_task     String
+  education     String
+  address       String   @db.Text
+  token         String   @unique @db.Text
+  role          String   @default("EMPLOYEE")
+
+  Absence     Absence[]
+  DailyReport DailyReport[]
+
+  @@map("users")
+}
+
+model Absence {
+  absenceid     Int      @id @default(autoincrement())
+  userid        String
+  datemorning   DateTime @default(now())
+  dateafternoon DateTime @default(now())
+  lastdate      DateTime @default(now())
+  status        String   @default("TIDAK HADIR")
+  file          String   @default("-") @db.Text
+  description   String   @default("-")
+
+  User User @relation(fields: [userid], references: [userid], onDelete: Cascade)
+
+  @@map("absences")
+}
+
+model DailyReport {
+  reportid    String   @id @default(uuid())
+  userid      String
+  date        DateTime @default(now())
+  description String   @db.Text
+
+  User User @relation(fields: [userid], references: [userid], onDelete: Cascade)
+
+  @@map("dailyreports")
+}
