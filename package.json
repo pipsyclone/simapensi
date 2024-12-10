@@ -1,37 +1,40 @@
 {
-  "name": "simapensi",
-  "version": "0.1.0",
-  "private": true,
-  "scripts": {
-    "dev": "next dev --turbopack",
-    "build": "next build",
-    "start": "next start",
-    "lint": "next lint"
-  },
-  "dependencies": {
-    "@auth/prisma-adapter": "^2.7.4",
-    "@emailjs/browser": "^4.4.1",
-    "@fortawesome/fontawesome-free": "^6.7.1",
-    "@prisma/client": "^6.0.1",
-    "axios": "^1.7.9",
-    "chart.js": "^4.4.7",
-    "date-fns": "^4.1.0",
-    "md5": "^2.3.0",
-    "next": "15.0.4",
-    "next-auth": "^4.24.11",
-    "primereact": "^10.8.5",
-    "prisma": "^6.0.1",
-    "qr-scanner": "^1.4.2",
-    "qrcode.react": "^4.1.0",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0",
-    "sweetalert2": "^11.14.5",
-    "swr": "^2.2.5",
-    "uuid": "^11.0.3",
-    "xlsx": "^0.18.5"
-  },
-  "devDependencies": {
-    "postcss": "^8",
-    "tailwindcss": "^3.4.1"
-  }
+	"name": "simapensi",
+	"version": "0.1.0",
+	"private": true,
+	"scripts": {
+		"dev": "next dev --turbopack",
+		"build": "next build",
+		"start": "next start",
+		"lint": "next lint"
+	},
+	"prisma": {
+		"seed": "node prisma/seed.js"
+	},
+	"dependencies": {
+		"@auth/prisma-adapter": "^2.7.4",
+		"@emailjs/browser": "^4.4.1",
+		"@fortawesome/fontawesome-free": "^6.7.1",
+		"@prisma/client": "^6.0.1",
+		"axios": "^1.7.9",
+		"chart.js": "^4.4.7",
+		"date-fns": "^4.1.0",
+		"md5": "^2.3.0",
+		"next": "15.0.4",
+		"next-auth": "^4.24.11",
+		"primereact": "^10.8.5",
+		"prisma": "^6.0.1",
+		"qr-scanner": "^1.4.2",
+		"qrcode.react": "^4.1.0",
+		"react": "^19.0.0",
+		"react-dom": "^19.0.0",
+		"sweetalert2": "^11.14.5",
+		"swr": "^2.2.5",
+		"uuid": "^11.0.3",
+		"xlsx": "^0.18.5"
+	},
+	"devDependencies": {
+		"postcss": "^8",
+		"tailwindcss": "^3.4.1"
+	}
 }
