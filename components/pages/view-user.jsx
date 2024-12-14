@@ -30,7 +30,7 @@ export default function ViewUser() {
 		params.userid
 	);
 
-	console.log(loadingUserDetail);
+	console.log(dataAbsenceByUser);
 
 	const [userid] = useState(params.userid);
 	const [name, setName] = useState("");
@@ -649,6 +649,8 @@ export default function ViewUser() {
 			{
 				loadingAbsenceByUser ? (
 					""
+				) : dataAbsenceByUser?.length === 0 ? (
+					""
 				) : dataStatusAbsence === "tidakhadir" ? (
 					<div className="mb-5 p-5 rounded-lg border border-red-500 bg-red-200 text-red-700 text-sm">
 						<b>ALERT!</b> Pegawai Ini Belum Absen Hari Ini!
@@ -713,7 +715,9 @@ export default function ViewUser() {
 							? "bg-indigo-500 rounded-lg border border-indigo-500 p-2 text-white basis-1/2 disabled:bg-indigo-400"
 							: "bg-white rounded-lg border border-indigo-500 p-2 text-indigo-500 basis-1/2 disabled:text-indigo-400"
 					}
-					disabled={loadingUserDetail}
+					disabled={
+						loadingUserDetail || dataAbsenceByUser?.length === 0 ? true : false
+					}
 				>
 					Data Kehadiran
 				</button>
@@ -725,7 +729,9 @@ export default function ViewUser() {
 							? "bg-indigo-500 rounded-lg border border-indigo-500 p-2 text-white basis-1/2 disabled:bg-indigo-400"
 							: "bg-white rounded-lg border border-indigo-500 p-2 text-indigo-500 basis-1/2 disabled:text-indigo-400"
 					}
-					disabled={loadingUserDetail}
+					disabled={
+						loadingUserDetail || dataAbsenceByUser?.length === 0 ? true : false
+					}
 				>
 					Data Laporan Harian
 				</button>

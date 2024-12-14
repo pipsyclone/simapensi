@@ -6,49 +6,50 @@ import md5 from "md5";
 export async function POST(request) {
 	try {
 		const body = await request.json();
-		const usernameExist = await prisma.user.findUnique({
+
+		const usernameExist = await prisma.user.findFirst({
 			where: {
 				username: body.username,
 			},
 		});
-		const emailExist = await prisma.user.findUnique({
+		const emailExist = await prisma.user.findFirst({
 			where: {
 				email: body.email,
 			},
 		});
-		const skNumberExist = await prisma.user.findUnique({
+		const skNumberExist = await prisma.user.findFirst({
 			where: {
 				sk_number: body.skNumber,
 			},
 		});
-		const noTelpExist = await prisma.user.findUnique({
+		const noTelpExist = await prisma.user.findFirst({
 			where: {
 				no_telp: body.noTelp,
 			},
 		});
 
-		if (usernameExist) {
+		if (usernameExist && usernameExist.username === body.username) {
 			return NextResponse.json({
 				status: 400,
 				message: "Username pegawai sudah tersedia!",
 			});
 		}
 
-		if (emailExist) {
+		if (emailExist && emailExist.email === body.email) {
 			return NextResponse.json({
 				status: 400,
 				message: "Email pegawai sudah tersedia!",
 			});
 		}
 
-		if (skNumberExist) {
+		if (skNumberExist && skNumberExist.sk_number === body.sk_number) {
 			return NextResponse.json({
 				status: 400,
 				message: "Nomor SK sudah tersedia!",
 			});
 		}
 
-		if (noTelpExist) {
+		if (noTelpExist && noTelpExist.no_telp === body.no_telp) {
 			return NextResponse.json({
 				status: 400,
 				message: "Nomor Telp sudah tersedia!",
@@ -72,6 +73,7 @@ export async function POST(request) {
 				role: body.role,
 			},
 		});
+
 		return NextResponse.json({
 			status: 200,
 			message: "Data Berhasil Dimasukkan!",
