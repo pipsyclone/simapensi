@@ -7,31 +7,28 @@ export async function PUT(request) {
 	try {
 		const body = await request.json();
 
-		const usernameExist = await prisma.user.findUnique({
+		const existingUser = await prisma.user.findUnique({
 			where: {
-				username: body.username,
-			},
-		});
-		const emailExist = await prisma.user.findUnique({
-			where: {
-				email: body.email,
-			},
-		});
-		const skNumberExist = await prisma.user.findUnique({
-			where: {
-				sk_number: body.skNumber,
-			},
-		});
-		const noTelpExist = await prisma.user.findUnique({
-			where: {
-				no_telp: body.noTelp,
+				userid: body.userid, // Asumsikan `userid` adalah primary key
 			},
 		});
 
+		if (!existingUser) {
+			return NextResponse.json({
+				status: 404,
+				message: "Data pengguna tidak ditemukan!",
+			});
+		}
+
+		// Cek jika `username` sudah digunakan oleh pengguna lain
 		if (
-			usernameExist !== null &&
-			usernameExist.userid !== body.userid &&
-			usernameExist.userid !== null
+			body.username !== existingUser.username &&
+			(await prisma.user.findFirst({
+				where: {
+					username: body.username,
+					userid: { not: body.userid },
+				},
+			}))
 		) {
 			return NextResponse.json({
 				status: 400,
@@ -39,10 +36,15 @@ export async function PUT(request) {
 			});
 		}
 
+		// Cek jika `email` sudah digunakan oleh pengguna lain
 		if (
-			emailExist !== null &&
-			emailExist.userid !== body.userid &&
-			emailExist.userid !== null
+			body.email !== existingUser.email &&
+			(await prisma.user.findFirst({
+				where: {
+					email: body.email,
+					userid: { not: body.userid },
+				},
+			}))
 		) {
 			return NextResponse.json({
 				status: 400,
@@ -50,10 +52,15 @@ export async function PUT(request) {
 			});
 		}
 
+		// Cek jika `sk_number` sudah digunakan oleh pengguna lain
 		if (
-			skNumberExist !== null &&
-			skNumberExist.userid !== body.userid &&
-			skNumberExist.userid !== null
+			body.skNumber !== existingUser.sk_number &&
+			(await prisma.user.findFirst({
+				where: {
+					sk_number: body.skNumber,
+					userid: { not: body.userid },
+				},
+			}))
 		) {
 			return NextResponse.json({
 				status: 400,
@@ -61,10 +68,15 @@ export async function PUT(request) {
 			});
 		}
 
+		// Cek jika `no_telp` sudah digunakan oleh pengguna lain
 		if (
-			noTelpExist !== null &&
-			noTelpExist.userid !== body.userid &&
-			noTelpExist.userid !== null
+			body.noTelp !== existingUser.no_telp &&
+			(await prisma.user.findFirst({
+				where: {
+					no_telp: body.noTelp,
+					userid: { not: body.userid },
+				},
+			}))
 		) {
 			return NextResponse.json({
 				status: 400,
